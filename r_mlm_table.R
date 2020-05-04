@@ -48,8 +48,9 @@ tablelmer <- function(x, y) { # x = test results, y = "caption"
       coding <- attr(data[, i], "coding")
       tempdataframe <- data.frame("variable" = variable, "name" = name, "coding" = coding, stringsAsFactors = FALSE)
       attributes <- rbind(attributes, tempdataframe)}} 
+  
   #Tidy column names
-  for (i in 1:length(tidyresults$term)) {
+  for (i in 1:length(attributes$variable)) {
     tidyresults$term <- str_replace_all(tidyresults$term, attributes$variable[i], attributes$name[i])
     tidyresults$group <- str_replace_all(tidyresults$group, attributes$variable[i], attributes$name[i])
   }
