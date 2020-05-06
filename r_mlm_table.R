@@ -64,7 +64,7 @@ tablelmer <- function(x, y) { # x = test results, y = "caption"
   tidyresults$effect[tidyresults$effect=="fixed"] <- "Fixed"
   tidyresults$effect[tidyresults$effect=="ran_pars"] <- "Random"
   #Capitalize first letter in group effect strings
-  for (i in 1:nrow(tidyresults$group)) {
+  for (i in 1:nrow(tidyresults)) {
     tidyresults$group[i] <- capitalize(tidyresults$group[i])
   }
   #Tidy column names for rMarkdown
