@@ -4,6 +4,7 @@ tablelmer <- function(x, y) { # x = test results, y = "caption"
   require(broom.mixed)
   require(numform)
   require(stringr)
+  require(Hmisc)
   summaryresults <- summary(x)
   tidyresults <- tidy(x)
   figurecaption <- y
@@ -62,9 +63,13 @@ tablelmer <- function(x, y) { # x = test results, y = "caption"
   #Tidy fixed and random effects names
   tidyresults$effect[tidyresults$effect=="fixed"] <- "Fixed"
   tidyresults$effect[tidyresults$effect=="ran_pars"] <- "Random"
+  #Capitalize first letter in group effect strings
+  for (i in 1:nrow(tidyresults$group)) {
+    tidyresults$group[i] <- capitalize(tidyresults$group[i])
+  }
   #Tidy column names for rMarkdown
   colnames(tidyresults) <- c("Effect", "Group", "Term", "Estimate", "SE", "CI~Lower~", "CI~Upper~", "*t*", "*df*","*p*")
-  
+
   #Set table parameters
   table <- apa_table(tidyresults, 
                      caption = figurecaption,
