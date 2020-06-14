@@ -1,0 +1,15 @@
+wordcount <- function(x, y) { # x = vector with words, y = vector with text
+  require(stringr)
+  words <- tolower(x)
+  texts <- tolower(y)
+  temp <- data.frame(v1 = 1:length(texts))
+  for (i in 1:length(texts)) {
+    for (y in 1:length(words)) {
+      target_word <- paste("\\b", words[y], "\\b", sep = "")
+      temp[y, i] <-  str_count(texts[i], target_word)
+    }
+  }
+  colnames(temp) <- words
+  temp$sum.score <- colSums(temp)
+  return(temp)
+}
