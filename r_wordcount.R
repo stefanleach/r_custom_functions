@@ -6,10 +6,10 @@ wordcount <- function(x, y) { # x = vector with words, y = vector with text
   for (i in 1:length(texts)) {
     for (y in 1:length(words)) {
       target_word <- paste("\\b", words[y], "\\b", sep = "")
-      temp[y, i] <-  str_count(texts[i], target_word)
+      temp[i, y] <-  str_count(texts[i], target_word)
     }
   }
   colnames(temp) <- words
-  temp$sum.score <- colSums(temp)
+  temp$sum.score <- rowSums(temp)
   return(temp)
 }
