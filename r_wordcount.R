@@ -10,6 +10,5 @@ wordcount <- function(x, y) { # x = vector with words, y = vector with text
     }
   }
   colnames(temp) <- words
-  temp$sum.score <- rowSums(temp)
   return(temp)
 }
