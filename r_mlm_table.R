@@ -2,7 +2,7 @@
 tablelmer <- function(x) { # x = test results
   require(papaja)
   require(broom.mixed)
-  require(numform)
+  require(lmerTest)
   require(stringr)
   require(Hmisc)
   tidyresults <- tidy(x)
