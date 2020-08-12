@@ -1,6 +1,5 @@
 #MLM tidy table function
 tablelmer <- function(x) { # x = test results
-  require(papaja)
   require(broom.mixed)
   require(lmerTest)
   require(stringr)
