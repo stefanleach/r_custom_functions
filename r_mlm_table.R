@@ -26,7 +26,7 @@ tablelmer <- function(x) { # x = test results
   
   #Tidy p values
   for (i in nrow(tidytable[tidytable$group=="fixed", ])) {
-    if(tidytable$p.value[i] < 0.001) {tidytable$p.value[i] <- "p < .001"}
+    if(tidytable$p.value[i] < 0.001) {tidytable$p.value[i] <- "< .001"}
   }
   
   return(tidytable) }
