@@ -20,11 +20,12 @@ tablelmer <- function(x) { # x = test results
   tidytable <- tidytable[order(tidytable$effect), ]
   tidytable <- tidytable[,c(4,5,1,6,7,2,3,8,9,10)]
   
-  #Round to 2 digits
-  tidytable[, 4:10] <- tidytable[, 4:10] %>% round(digits=2)
+  #Round
+  tidytable[, 4:9] <- tidytable[, 4:9] %>% round(digits=2)
+  tidytable[, 10] <- tidytable[, 10] %>% round(digits=3)
   
   #Tidy p values
-  for (i in nrow(tidytable)) {
+  for (i in nrow(tidytable[tidytable$group=="fixed", ])) {
     if(tidytable$p.value[i] < 0.001) {tidytable$p.value[i] <- "p < .001"}
   }
   
