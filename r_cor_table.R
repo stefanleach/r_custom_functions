@@ -3,8 +3,8 @@ cortable <-function(x, method=c("pearson", "spearman"), caption, landscape,
                     removeTriangle=c("upper", "lower"), result=c("none", "html", "latex")){
   #Compute correlation matrix
   require(Hmisc)
-  require(papaja)
   require(numform)
+  require(tidyverse)
   dataframe <- x
   x <- as.matrix(x)
   correlation_matrix<-rcorr(x, type=method[1])
@@ -58,35 +58,17 @@ cortable <-function(x, method=c("pearson", "spearman"), caption, landscape,
   Rnew <- Rnew[,c(order)]
   
   ## tidy column names
-  column_names <- c("*M*", "*SD*", column_corr)
+  column_names <- c("m", "sd", column_corr)
   colnames(Rnew) <- column_names
   
-  #get attributes
-  attributes <- data.frame()
-  for (i in 1:length(colnames(dataframe))) {
-    if(is.null(attr(dataframe[, i], "name"))==FALSE){
-      variable <- colnames(dataframe)[i]
-      name <- attr(dataframe[, i], "name")
-      tempdataframe <- data.frame("variable" = variable, "name" = name, stringsAsFactors = FALSE)
-      attributes <- rbind(attributes, tempdataframe)}}
-  
-  #tidy names
-  for (i in 1:length(attributes$variable)) {
-    row.names(Rnew) <- str_replace_all(row.names(Rnew), attributes$variable[i], attributes$name[i])
-  }
+  ## round means and sds
+  Rnew[, 1:2] <- Rnew[, 1:2] %>% round(digits=2)
   
   ## add number to row variables
   for (i in 1:length(row.names(Rnew))) {
     row.names(Rnew)[i] <- paste(i, row.names(Rnew)[i])
   }
   
-  ## apa style
-  Rnew <- apa_table(Rnew, 
-                    caption = caption,
-                    landscape = landscape,
-                    format = "markdown",
-                    escape = FALSE,
-                    note = "*** *p* < .001, ** *p* < .010, * *p* < .050.")
   ## return table
   return(Rnew)
 } 
