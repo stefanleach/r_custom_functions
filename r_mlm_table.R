@@ -14,7 +14,7 @@ tablelmer <- function(x) { # x = test results
   confidence_intervals$term <- rownames(confidence_intervals)
   
   #Merge confidence intervals
-  tidytable <- merge(confidence_intervals, tidyresults, by="term", all.y = TRUE)
+  tidytable <- merge(confidence_intervals, tidyresults, by="term", all.y = TRUE, sort = FALSE)
   
   #Sort
   tidytable <- tidytable[order(tidytable$effect), ]
