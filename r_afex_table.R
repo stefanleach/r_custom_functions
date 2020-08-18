@@ -11,7 +11,7 @@ tableafex <- function(x) { # x = test results
   tidytable[, 2:5] <- tidytable[, 2:5] %>% round(digits=2)
   
   #Tidy p values
-  for (i in nrow(tidytable)) {
+  for (i in 1:nrow(tidytable)) {
     if(tidytable$p.value[i] < 0.001) {tidytable$p.value[i] <- "< .001"}
     if(tidytable$p.value[i] > 0.001) {tidytable$p.value[i] <- f_num(tidytable$p.value[i], 3)}
   }
