@@ -1,5 +1,7 @@
 #MLM in-text print function
 printlmer <- function(x) {
+  require(broom)
+  require(broom.mixed)
   require(numform)
   require(tidyverse)
   tidy_tibble <- 
