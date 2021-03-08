@@ -1,6 +1,9 @@
 #Mixed effect models
 #print fixed effects table in APA-style for reporting in-text
+#packages: lme4, lmertest, broom, broom.mixed, numform, tidyverse
 printlmer <- function(x) {
+  require(lme4)
+  require(lmerTest)
   require(broom)
   require(broom.mixed)
   require(numform)
