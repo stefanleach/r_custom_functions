@@ -1,4 +1,4 @@
-report_apa <- 
+report_in_apa <- 
  function(x) {
    if(grepl(class(x)[1], "htest")) {
     if(grepl("correlation", x$method)) {
@@ -93,26 +93,3 @@ report_apa <-
       stop("I do not support this method :(")
     }
  }
-
-
-cosines %>%
-  aov_ez(id = "entity",
-         dv = "care",
-         between = "human_animal") %>%
-  report_apa
-
-library(afex)
-
-cosines %>%
-  group_by(model) %>%
-  summarize(n = length(care[group=="companion animal"]),
-            mean = mean(care[group=="companion animal"], na.rm = TRUE),
-            sd = sd(care[group=="companion animal"], na.rm = TRUE)) %>%
-  metamean(n, mean, sd, 
-           studlab = model,
-           null.effect = 0,
-           data=.)  %>%
-  report_apa
-
-
-      
