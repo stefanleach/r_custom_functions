@@ -1,5 +1,5 @@
 #ANOVA(afex) tidy table function
-tableafex <- function(x) { # x = test results
+apa_anova_table <- function(x) { # x = test results
   require(broom)
   require(afex)
   require(numform)
