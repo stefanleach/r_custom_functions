@@ -1,33 +1,33 @@
-#MLM in-text print function
+#Mixed effect models
+#print fixed effects table in APA-style for reporting in-text
 printlmer <- function(x) {
   require(broom)
   require(broom.mixed)
   require(numform)
   require(tidyverse)
-  tidy_tibble <- 
+  
+  results <- 
+    x %>%
+    tidy()
+  
+  table <- 
     x %>%
     tidy() %>%
     mutate(result = NA) %>%
     filter(effect=="fixed") %>%
     dplyr::select(term, result)
   
-  x_summary <- summary(x)
+  CIs <- x %>% confint.merMod(method = "Wald") %>% as.data.frame %>% mutate(term = rownames(.))
   
-  for (i in tidy_tibble$term) {
-    estimate <- formatC(round(x_summary$coefficients[i, ][[1]], 2), digits=2, format='f')
-    se <- formatC(round(x_summary$coefficients[i, ][[2]], 2), digits=2, format='f')
-    CIs <- confint.merMod(x, method = "Wald")
-    CI_low <- formatC(round(CIs[i, ][1], 2), digits=2, format='f')
-    CI_high <- formatC(round(CIs[i, ][2], 2), digits=2, format='f')
-    p <- x_summary$coefficients[i, ][[5]]
-    estimate_print <- paste(estimate,", ", sep = "")
-    se_print <- paste("SE = ", se,", ", sep = "")
-    CI_low_print <- paste("95% CI [", CI_low, ", ", sep = "")
-    CI_high_print <- paste(CI_high, "], ", sep = "")
-    if(p > .001) {p_print <- paste("p = ", f_num(p, 3), sep = "")}
-    if(p < .001) {p_print <- paste("p < .001", sep = "")}
-    result_string <- paste(estimate_print, se_print, CI_low_print, CI_high_print, p_print, sep = "")
-    tidy_tibble$result[tidy_tibble$term==i] <- result_string
+  for (i in table$term) {
+    estimate <- results %>% filter(term==i) %>% pull(estimate) %>% round (2) %>% formatC(digits=2, format='f')
+    se <- results %>% filter(term==i) %>% pull(std.error) %>% round (2) %>% formatC(digits=2, format='f')
+    CI_low <- CIs %>% filter(term==i) %>% pull(`2.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
+    CI_high <- CIs %>% filter(term==i) %>% pull(`97.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
+    if(results$p.value[results$term==i] > .001)  {p <- paste("p = ", results %>% filter(term==i) %>% pull(p.value) %>% f_num(3), sep ="")}
+    if(results$p.value[results$term==i] < .001)  {p <- "p < .001"}
+    string <- paste("coef = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], ", p, sep = "")
+    table$result[table$term==i] <- string
   }
-  return(tidy_tibble)
+  return(table)
 }
