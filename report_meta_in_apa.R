@@ -1,7 +1,7 @@
 #Meta-analysis
 #print fixed effects table in APA-style for reporting in-text
 #packages: meta, numform, tidyverse
-apa_meta_intext <- function(x) {
+report_meta_in_apa <- function(x) {
   require(meta)
   require(numform)
   require(tidyverse)
