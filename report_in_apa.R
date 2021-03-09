@@ -1,7 +1,7 @@
 report_in_apa <- 
  function(x) {
    if(grepl(class(x)[1], "htest")) {
-    if(grepl(x$method, "correlation")) {
+    if(grepl("correlation", x$method)) {
       require(apa)
       require(stringr)
       string <- apa(x, r_ci = TRUE)
@@ -9,7 +9,7 @@ report_in_apa <-
       string <- str_replace_all(string, ";", ",")
       return(string)
     }
-    if(grepl(x$method, "t-test")) {
+    if(grepl("t-test", x$method)) {
       require(apa)
       require(stringr)
       string <- apa(x, es = "cohens_d", es_ci = TRUE)
