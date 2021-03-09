@@ -44,7 +44,7 @@ report_in_apa <-
         df <- summary(x)$df[2] 
         if(results$p.value[results$term==i] > .001)  {p <- paste("p = ", results %>% filter(term==i) %>% pull(p.value) %>% f_num(3), sep ="")}
         if(results$p.value[results$term==i] < .001)  {p <- "p < .001"}
-        string <- paste("β = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], t(", df, ") = ", statistic, ", ", p, sep = "")
+        string <- paste("beta = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], t(", df, ") = ", statistic, ", ", p, sep = "")
         table$result[table$term==i] <- string
       }
       return(table)
