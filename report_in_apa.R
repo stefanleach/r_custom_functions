@@ -17,7 +17,7 @@ report_in_apa <-
       string <- str_replace_all(string, ";", ",")
       return(string)
     }
-   }
+   } 
    if(grepl(class(x), "lm")) {
       require(broom)
       require(numform)
