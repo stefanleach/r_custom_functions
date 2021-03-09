@@ -1,7 +1,7 @@
 report_in_apa <- 
  function(x) {
    if(grepl(class(x)[1], "htest")) {
-    if(grepl("correlation", x$method)) {
+    if(grepl(x$method, "correlation")) {
       require(apa)
       require(stringr)
       string <- apa(x, r_ci = TRUE)
@@ -9,7 +9,7 @@ report_in_apa <-
       string <- str_replace_all(string, ";", ",")
       return(string)
     }
-    if(grepl("t-test", x$method)) {
+    if(grepl(x$method, "t-test")) {
       require(apa)
       require(stringr)
       string <- apa(x, es = "cohens_d", es_ci = TRUE)
@@ -18,6 +18,37 @@ report_in_apa <-
       return(string)
     }
    }
+   if(grepl(class(x), "lm")) {
+      require(broom)
+      require(numform)
+      require(tidyverse)
+      
+      results <- 
+        x %>%
+        tidy()
+      
+      table <- 
+        x %>%
+        tidy() %>%
+        mutate(result = NA) %>%
+        dplyr::select(term, result)
+      
+      CIs <- x %>% confint()%>% as.data.frame %>% mutate(term = rownames(.))
+      
+      for (i in table$term) {
+        estimate <- results %>% filter(term==i) %>% pull(estimate) %>% round (2) %>% formatC(digits=2, format='f')
+        se <- results %>% filter(term==i) %>% pull(std.error) %>% round (2) %>% formatC(digits=2, format='f')
+        CI_low <- CIs %>% filter(term==i) %>% pull(`2.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
+        CI_high <- CIs %>% filter(term==i) %>% pull(`97.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
+        statistic <- results %>% filter(term==i) %>% pull(statistic) %>% round (2) %>% formatC(digits=2, format='f')
+        df <- summary(x)$df[2] 
+        if(results$p.value[results$term==i] > .001)  {p <- paste("p = ", results %>% filter(term==i) %>% pull(p.value) %>% f_num(3), sep ="")}
+        if(results$p.value[results$term==i] < .001)  {p <- "p < .001"}
+        string <- paste("β = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], t(", df, ") = ", statistic, ", ", p, sep = "")
+        table$result[table$term==i] <- string
+      }
+      return(table)
+     }
    if(grepl(class(x)[1], "afex_aov")) {
       require(apa)
       require(stringr)
@@ -62,7 +93,8 @@ report_in_apa <-
       }
       return(table)
     }
-    if(grepl(class(x)[1], "metacont") | grepl(class(x)[1], "metamean")) {
+    if(grepl(class(x)[1], "metacont") | 
+       grepl(class(x)[1], "metamean")) {
       require(meta)
       require(numform)
       require(tidyverse)
