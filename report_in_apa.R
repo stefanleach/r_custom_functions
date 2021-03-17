@@ -49,6 +49,36 @@ report_in_apa <-
       }
       return(table)
      }
+   if(grepl(class(x), "glm")) {
+     require(broom)
+     require(numform)
+     require(tidyverse)
+     
+     results <- 
+       x %>%
+       tidy()
+     
+     table <- 
+       x %>%
+       tidy() %>%
+       mutate(result = NA) %>%
+       dplyr::select(term, result)
+     
+     CIs <- x %>% confint()%>% as.data.frame %>% mutate(term = rownames(.))
+     
+     for (i in table$term) {
+       estimate <- results %>% filter(term==i) %>% pull(estimate) %>% round (2) %>% formatC(digits=2, format='f')
+       se <- results %>% filter(term==i) %>% pull(std.error) %>% round (2) %>% formatC(digits=2, format='f')
+       CI_low <- CIs %>% filter(term==i) %>% pull(`2.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
+       CI_high <- CIs %>% filter(term==i) %>% pull(`97.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
+       statistic <- results %>% filter(term==i) %>% pull(statistic) %>% round (2) %>% formatC(digits=2, format='f')
+       if(results$p.value[results$term==i] > .001)  {p <- paste("p = ", results %>% filter(term==i) %>% pull(p.value) %>% f_num(3), sep ="")}
+       if(results$p.value[results$term==i] < .001)  {p <- "p < .001"}
+       string <- paste("b = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], Z = ", statistic, ", ", p, sep = "")
+       table$result[table$term==i] <- string
+      }
+     return(table)
+    }
    if(grepl(class(x)[1], "afex_aov")) {
       require(apa)
       require(stringr)
