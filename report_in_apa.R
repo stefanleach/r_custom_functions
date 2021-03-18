@@ -7,7 +7,9 @@ report_in_apa <-
       string <- apa(x, r_ci = TRUE)
       string <- str_replace_all(string, "\\*", "")
       string <- str_replace_all(string, ";", ",")
+      note <- paste("note, Cohen's d = ds(independent), dz(paired)")
       return(string)
+      return(note)
     }
     if(grepl("t-test", x$method)) {
       require(apa)
