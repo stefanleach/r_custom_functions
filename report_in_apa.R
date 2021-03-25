@@ -19,7 +19,7 @@ report_in_apa <-
       return(string)
     }
    } 
-   if(grepl(class(x), "lm")) {
+   if(grepl(class(x)[1], "lm")) {
       require(broom)
       require(numform)
       require(tidyverse)
@@ -50,7 +50,7 @@ report_in_apa <-
       }
       return(table)
      }
-   if(grepl(class(x), "glm")) {
+   if(grepl(class(x)[1], "glm")) {
      require(broom)
      require(numform)
      require(tidyverse)
