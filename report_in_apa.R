@@ -1,3 +1,8 @@
+z2cor <- 
+  function(x) {
+    res <- (exp(2 * x) - 1) / (exp(2 * x) + 1)
+    res
+}
 report_in_apa <- 
  function(x) {
    if(grepl(class(x)[1], "htest")) {
@@ -132,16 +137,16 @@ report_in_apa <-
         data.frame(effect = c("fixed", "random"),
                    string = NA)
       
-      fixed_r <- x$TE.fixed %>% round(2) %>% formatC(digits=2, format='f')
-      fixed_lower <- x$lower.fixed %>% round(2) %>% formatC(digits=2, format='f')
-      fixed_upper <- x$upper.fixed %>% round(2) %>% formatC(digits=2, format='f')
+      fixed_r <- x$TE.fixed %>% z2cor() %>% round(2) %>% formatC(digits=2, format='f')
+      fixed_lower <- x$lower.fixed %>% z2cor() %>% round(2) %>% formatC(digits=2, format='f')
+      fixed_upper <- x$upper.fixed %>% z2cor() %>% round(2) %>% formatC(digits=2, format='f')
       fixed_z <- x$statistic.fixed %>% round(2) %>% formatC(digits=2, format='f')
       if(x$pval.fixed > .001) {fixed_p <- paste("p = ", x$pval.fixed %>% f_num(3), sep = "")}
       if(x$pval.fixed < .001) {fixed_p <- "p < .001"}
       
-      random_r <- x$TE.random %>% round(2) %>% formatC(digits=2, format='f')
-      random_lower <- x$lower.random %>% round(2) %>% formatC(digits=2, format='f')
-      random_upper <- x$upper.random %>% round(2) %>% formatC(digits=2, format='f')
+      random_r <- x$TE.random %>% z2cor() %>% round(2) %>% formatC(digits=2, format='f')
+      random_lower <- x$lower.random %>% z2cor() %>% round(2) %>% formatC(digits=2, format='f')
+      random_upper <- x$upper.random %>% z2cor() %>% round(2) %>% formatC(digits=2, format='f')
       random_z <- x$statistic.random %>% round(2) %>% formatC(digits=2, format='f')
       if(x$pval.random > .001) {random_p <- paste("p = ", x$pval.random %>% f_num(3), sep = "")}
       if(x$pval.random < .001) {random_p <- "p < .001"}
