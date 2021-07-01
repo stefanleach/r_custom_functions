@@ -12,7 +12,7 @@ report_in_apa <-
       string <- apa(x, r_ci = TRUE)
       string <- str_replace_all(string, "\\*", "")
       string <- str_replace_all(string, ";", ",")
-      string <- str_replace_all(string, " [", ", 95% CI [")
+      string <- str_replace_all(string, " \\[", ", 95% CI [")
       return(string)
     }
     if(grepl("t-test", x$method)) {
@@ -21,7 +21,7 @@ report_in_apa <-
       string <- apa(x, es = "cohens_d", es_ci = TRUE)
       string <- str_replace_all(string, "\\*", "")
       string <- str_replace_all(string, ";", ",")
-      string <- str_replace_all(string, " [", ", 95% CI [")
+      string <- str_replace_all(string, " \\[", ", 95% CI [")
       string <- paste(string, "|note, Cohen's d = ds(independent), dz(paired)|")
       return(string)
     }
