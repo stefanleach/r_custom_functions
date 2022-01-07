@@ -5,27 +5,36 @@ z2cor <-
 }
 report_in_apa <- 
  function(x) {
-   if(grepl(class(x)[1], "htest")) {
-    if(grepl("correlation", x$method)) {
-      require(apa)
-      require(stringr)
-      string <- apa(x, r_ci = TRUE)
-      string <- str_replace_all(string, "\\*", "")
-      string <- str_replace_all(string, ";", ",")
-      string <- str_replace_all(string, " \\[", ", 95% CI [")
-      return(string)
-    }
-    if(grepl("t-test", x$method)) {
-      require(apa)
-      require(stringr)
-      string <- apa(x, es = "cohens_d", es_ci = TRUE)
-      string <- str_replace_all(string, "\\*", "")
-      string <- str_replace_all(string, ";", ",")
-      string <- str_replace_all(string, " \\[", ", 95% CI [")
-      string <- paste(string, "|note, Cohen's d = ds(independent), dz(paired)|")
-      return(string)
-    }
-   } 
+   if(grepl("Pearson's product-moment correlation", x$method)) {
+     r_rounded <- sprintf("%.2f", round(x$estimate[[1]], 2))
+     r_no_leading <- gsub("0\\.", ".", as.character(r_rounded))
+     r = r_no_leading
+     r_lci_rounded <- sprintf("%.2f", round(x$conf.int[1], 2))
+     r_lci_no_leading <- gsub("0\\.", ".", as.character(r_lci_rounded))
+     r_lci = r_lci_no_leading
+     r_uci_rounded <- sprintf("%.2f", round(x$conf.int[2], 2))
+     r_uci_no_leading <- gsub("0\\.", ".", as.character(r_uci_rounded))
+     r_uci = r_uci_no_leading
+     t <- sprintf("%.2f", round(x$statistic[[1]], 2))
+     df <- x$parameter[[1]]
+     
+     if(x$p.value > .001) {p_rounded <- sprintf("%.3f", round(x$p.value[[1]], 3))
+                           p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
+                           p <- paste("p = ", p_no_leading_zero, sep = "")}
+     if(x$p.value < .001) {p <- "p < .001"}
+     r_apa_string <- paste("r(", df, ") = ", r, ", 95% CI [", r_lci, ", ", r_uci, "], ", p, sep = "")
+     return(r_apa_string)
+   }
+   if(grepl("t-test", x$method)) {
+     require(apa)
+     require(stringr)
+     string <- apa(x, es = "cohens_d", es_ci = TRUE)
+     string <- str_replace_all(string, "\\*", "")
+     string <- str_replace_all(string, ";", ",")
+     string <- str_replace_all(string, " \\[", ", 95% CI [")
+     string <- paste(string, "|note, Cohen's d = ds(independent), dz(paired)|")
+     return(string)
+   }
    if(grepl(class(x)[1], "lm")) {
       require(broom)
       require(tidyverse)
