@@ -28,7 +28,6 @@ report_in_apa <-
    } 
    if(grepl(class(x)[1], "lm")) {
       require(broom)
-      require(numform)
       require(tidyverse)
       
       results <- 
@@ -50,7 +49,9 @@ report_in_apa <-
         CI_high <- CIs %>% filter(term==i) %>% pull(`97.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
         statistic <- results %>% filter(term==i) %>% pull(statistic) %>% round (2) %>% formatC(digits=2, format='f')
         df <- summary(x)$df[2] 
-        if(results$p.value[results$term==i] > .001)  {p <- paste("p = ", results %>% filter(term==i) %>% pull(p.value) %>% f_num(3), sep ="")}
+        if(results$p.value[results$term==i] > .001)  {p_raw <- results$p.value[results$term==i]
+                                                      p_rounded <- round(p_raw, 3)
+                                                      p <- gsub("0\\.", ".", as.character(p_rounded))}
         if(results$p.value[results$term==i] < .001)  {p <- "p < .001"}
         string <- paste("beta = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], t(", df, ") = ", statistic, ", ", p, sep = "")
         table$result[table$term==i] <- string
@@ -59,7 +60,6 @@ report_in_apa <-
      }
    if(grepl(class(x)[1], "glm")) {
      require(broom)
-     require(numform)
      require(tidyverse)
      
      results <- 
@@ -80,7 +80,9 @@ report_in_apa <-
        CI_low <- CIs %>% filter(term==i) %>% pull(`2.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
        CI_high <- CIs %>% filter(term==i) %>% pull(`97.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
        statistic <- results %>% filter(term==i) %>% pull(statistic) %>% round (2) %>% formatC(digits=2, format='f')
-       if(results$p.value[results$term==i] > .001)  {p <- paste("p = ", results %>% filter(term==i) %>% pull(p.value) %>% f_num(3), sep ="")}
+       if(results$p.value[results$term==i] > .001)  {p_raw <- results$p.value[results$term==i]
+                                                     p_rounded <- round(p_raw, 3)
+                                                     p <- gsub("0\\.", ".", as.character(p_rounded))}
        if(results$p.value[results$term==i] < .001)  {p <- "p < .001"}
        string <- paste("b = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], Z = ", statistic, ", ", p, sep = "")
        table$result[table$term==i] <- string
@@ -103,7 +105,6 @@ report_in_apa <-
       require(lmerTest)
       require(broom)
       require(broom.mixed)
-      require(numform)
       require(tidyverse)
       
       results <- 
@@ -124,7 +125,9 @@ report_in_apa <-
         se <- results %>% filter(term==i) %>% pull(std.error) %>% round (2) %>% formatC(digits=2, format='f')
         CI_low <- CIs %>% filter(term==i) %>% pull(`2.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
         CI_high <- CIs %>% filter(term==i) %>% pull(`97.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
-        if(results$p.value[results$term==i] > .001)  {p <- paste("p = ", results %>% filter(term==i) %>% pull(p.value) %>% f_num(3), sep ="")}
+        if(results$p.value[results$term==i] > .001)  {p_raw <- results$p.value[results$term==i]
+                                                      p_rounded <- round(p_raw, 3)
+                                                      p <- gsub("0\\.", ".", as.character(p_rounded))}
         if(results$p.value[results$term==i] < .001)  {p <- "p < .001"}
         string <- paste("coef = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], ", p, sep = "")
         table$result[table$term==i] <- string
