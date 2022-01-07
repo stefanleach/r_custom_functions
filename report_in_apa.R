@@ -51,7 +51,8 @@ report_in_apa <-
         df <- summary(x)$df[2] 
         if(results$p.value[results$term==i] > .001)  {p_raw <- results$p.value[results$term==i]
                                                       p_rounded <- round(p_raw, 3)
-                                                      p <- gsub("0\\.", ".", as.character(p_rounded))}
+                                                      p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
+                                                      p <- paste("p = ", p_no_leading_zero, sep = "")}
         if(results$p.value[results$term==i] < .001)  {p <- "p < .001"}
         string <- paste("beta = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], t(", df, ") = ", statistic, ", ", p, sep = "")
         table$result[table$term==i] <- string
@@ -82,7 +83,8 @@ report_in_apa <-
        statistic <- results %>% filter(term==i) %>% pull(statistic) %>% round (2) %>% formatC(digits=2, format='f')
        if(results$p.value[results$term==i] > .001)  {p_raw <- results$p.value[results$term==i]
                                                      p_rounded <- round(p_raw, 3)
-                                                     p <- gsub("0\\.", ".", as.character(p_rounded))}
+                                                     p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
+                                                     p <- paste("p = ", p_no_leading_zero, sep = "")}
        if(results$p.value[results$term==i] < .001)  {p <- "p < .001"}
        string <- paste("b = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], Z = ", statistic, ", ", p, sep = "")
        table$result[table$term==i] <- string
@@ -125,10 +127,11 @@ report_in_apa <-
         se <- results %>% filter(term==i) %>% pull(std.error) %>% round (2) %>% formatC(digits=2, format='f')
         CI_low <- CIs %>% filter(term==i) %>% pull(`2.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
         CI_high <- CIs %>% filter(term==i) %>% pull(`97.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
-        if(results$p.value[results$term==i] > .001)  {p_raw <- results$p.value[results$term==i]
-                                                      p_rounded <- round(p_raw, 3)
-                                                      p <- gsub("0\\.", ".", as.character(p_rounded))}
-        if(results$p.value[results$term==i] < .001)  {p <- "p < .001"}
+        if(results$p.value[results$term==i] > .001) {p_raw <- results$p.value[results$term==i]
+                                                     p_rounded <- round(p_raw, 3)
+                                                     p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
+                                                     p <- paste("p = ", p_no_leading_zero, sep = "")}
+        if(results$p.value[results$term==i] < .001) {p <- "p < .001"}
         string <- paste("coef = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], ", p, sep = "")
         table$result[table$term==i] <- string
       }
