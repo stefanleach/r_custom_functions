@@ -123,6 +123,7 @@ report_in_apa <-
      return(table)
    }
     if(grepl(class(x)[1], "lmerModLmerTest")) {
+      require(lmerTest)
       lmer_summary <- summary(x)
       results_table <- as.data.frame(lmer_summary$coefficients)
       CIs_full <- as.data.frame(confint.merMod(x, method = "Wald"))
