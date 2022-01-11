@@ -5,44 +5,46 @@ z2cor <-
 }
 report_in_apa <- 
  function(x) {
-   if(grepl("Pearson's product-moment correlation", x$method)) {
-     r_rounded <- sprintf("%.2f", round(x$estimate[[1]], 2))
-     r_no_leading <- gsub("0\\.", ".", as.character(r_rounded))
-     r = r_no_leading
-     r_lci_rounded <- sprintf("%.2f", round(x$conf.int[1], 2))
-     r_lci_no_leading <- gsub("0\\.", ".", as.character(r_lci_rounded))
-     r_lci = r_lci_no_leading
-     r_uci_rounded <- sprintf("%.2f", round(x$conf.int[2], 2))
-     r_uci_no_leading <- gsub("0\\.", ".", as.character(r_uci_rounded))
-     r_uci = r_uci_no_leading
-     t <- sprintf("%.2f", round(x$statistic[[1]], 2))
-     df <- x$parameter[[1]]
-     
-     if(x$p.value > .001) {p_rounded <- sprintf("%.3f", round(x$p.value[[1]], 3))
-                           p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
-                           p <- paste("p = ", p_no_leading_zero, sep = "")}
-     if(x$p.value < .001) {p <- "p < .001"}
-     r_apa_string <- paste("r(", df, ") = ", r, ", 95% CI [", r_lci, ", ", r_uci, "], ", p, sep = "")
-     return(r_apa_string)
-   }
-   if(grepl("Two Sample t-test", x$method) &
-     !grepl("Welch", x$method)) {
-    require(MBESS)
-    t <- sprintf("%.2f", round(x$statistic[[1]], 2))
-    df <- x$parameter[[1]]
-    if(x$p.value > .001) {p_rounded <- sprintf("%.3f", round(x$p.value[[1]], 3))
-                          p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
-                          p <- paste("p = ", p_no_leading_zero, sep = "")}
-    if(x$p.value < .001) {p <- "p < .001"}
-    d_and_cis <- ci.smd(ncp = x$statistic[[1]],
-                        n.1 = length(x$data$x),
-                        n.2 = length(x$data$y),
-                        conf.level = .95)
-    d <- sprintf("%.2f", round(d_and_cis$smd, 2))
-    d_lci <- sprintf("%.2f", round(d_and_cis$Lower.Conf.Limit.smd, 2))
-    d_uci <- sprintf("%.2f", round(d_and_cis$Upper.Conf.Limit.smd, 2))
-    t_apa_string <- paste("t(", df, ") = ", t, ", ", p, ", d = ", d, " 95% CI [", d_lci, ", ", d_uci, "]", sep = "")
-    return(t_apa_string)
+   if(grepl(class(x), "htest")) {
+     if(grepl("Pearson's product-moment correlation", x$method)) {
+       r_rounded <- sprintf("%.2f", round(x$estimate[[1]], 2))
+       r_no_leading <- gsub("0\\.", ".", as.character(r_rounded))
+       r = r_no_leading
+       r_lci_rounded <- sprintf("%.2f", round(x$conf.int[1], 2))
+       r_lci_no_leading <- gsub("0\\.", ".", as.character(r_lci_rounded))
+       r_lci = r_lci_no_leading
+       r_uci_rounded <- sprintf("%.2f", round(x$conf.int[2], 2))
+       r_uci_no_leading <- gsub("0\\.", ".", as.character(r_uci_rounded))
+       r_uci = r_uci_no_leading
+       t <- sprintf("%.2f", round(x$statistic[[1]], 2))
+       df <- x$parameter[[1]]
+       
+       if(x$p.value > .001) {p_rounded <- sprintf("%.3f", round(x$p.value[[1]], 3))
+                             p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
+                             p <- paste("p = ", p_no_leading_zero, sep = "")}
+       if(x$p.value < .001) {p <- "p < .001"}
+       r_apa_string <- paste("r(", df, ") = ", r, ", 95% CI [", r_lci, ", ", r_uci, "], ", p, sep = "")
+       return(r_apa_string)
+     }
+     if(grepl("Two Sample t-test", x$method) &
+       !grepl("Welch", x$method)) {
+      require(MBESS)
+      t <- sprintf("%.2f", round(x$statistic[[1]], 2))
+      df <- x$parameter[[1]]
+      if(x$p.value > .001) {p_rounded <- sprintf("%.3f", round(x$p.value[[1]], 3))
+                            p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
+                            p <- paste("p = ", p_no_leading_zero, sep = "")}
+      if(x$p.value < .001) {p <- "p < .001"}
+      d_and_cis <- ci.smd(ncp = x$statistic[[1]],
+                          n.1 = length(x$data$x),
+                          n.2 = length(x$data$y),
+                          conf.level = .95)
+      d <- sprintf("%.2f", round(d_and_cis$smd, 2))
+      d_lci <- sprintf("%.2f", round(d_and_cis$Lower.Conf.Limit.smd, 2))
+      d_uci <- sprintf("%.2f", round(d_and_cis$Upper.Conf.Limit.smd, 2))
+      t_apa_string <- paste("t(", df, ") = ", t, ", ", p, ", d = ", d, " 95% CI [", d_lci, ", ", d_uci, "]", sep = "")
+      return(t_apa_string)
+     }
    }
    if(grepl(class(x)[1], "lm")) {
       require(broom)
