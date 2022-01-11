@@ -129,8 +129,8 @@ report_in_apa <-
       CIs <- CIs_full[!is.na(CIs_full$`2.5 %`), ]
       results_table$CI_low <- CIs$`2.5 %`
       results_table$CI_high <- CIs$`97.5 %`
-      lmer_apa_table <- data.frame(term = rownames(results_table),
-                                   lmer_apa_string = NA)
+      lmer_apa_string_table <- data.frame(term = rownames(results_table),
+                                          lmer_apa_string = NA)
       for (i in rownames(results_table)) {
         estimate_raw <- results_table$Estimate[rownames(results_table)==i]
         estimate <- sprintf("%.2f", round(estimate_raw, 2))
