@@ -25,15 +25,24 @@ report_in_apa <-
      r_apa_string <- paste("r(", df, ") = ", r, ", 95% CI [", r_lci, ", ", r_uci, "], ", p, sep = "")
      return(r_apa_string)
    }
-   if(grepl("t-test", x$method)) {
-     require(apa)
-     require(stringr)
-     string <- apa(x, es = "cohens_d", es_ci = TRUE)
-     string <- str_replace_all(string, "\\*", "")
-     string <- str_replace_all(string, ";", ",")
-     string <- str_replace_all(string, " \\[", ", 95% CI [")
-     string <- paste(string, "|note, Cohen's d = ds(independent), dz(paired)|")
-     return(string)
+   if(grepl("Two Sample t-test", x$method) &
+     !grepl("Welch", x$method)) {
+    require(MBESS)
+    t <- sprintf("%.2f", round(x$statistic[[1]], 2))
+    df <- x$parameter[[1]]
+    if(x$p.value > .001) {p_rounded <- sprintf("%.3f", round(x$p.value[[1]], 3))
+                          p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
+                          p <- paste("p = ", p_no_leading_zero, sep = "")}
+    if(x$p.value < .001) {p <- "p < .001"}
+    d_and_cis <- ci.smd(ncp = x$statistic[[1]],
+                        n.1 = length(x$data$x),
+                        n.2 = length(x$data$y),
+                        conf.level = .95)
+    d <- sprintf("%.2f", round(d_and_cis$smd, 2))
+    d_lci <- sprintf("%.2f", round(d_and_cis$Lower.Conf.Limit.smd, 2))
+    d_uci <- sprintf("%.2f", round(d_and_cis$Upper.Conf.Limit.smd, 2))
+    t_apa_string <- paste("t(", df, ") = ", t, ", ", p, ", d = ", d, " 95% CI [", d_lci, ", ", d_uci, "]", sep = "")
+    return(t_apa_string)
    }
    if(grepl(class(x)[1], "lm")) {
       require(broom)
@@ -112,39 +121,32 @@ report_in_apa <-
      return(table)
    }
     if(grepl(class(x)[1], "lmerModLmerTest")) {
-      require(lme4)
-      require(lmerTest)
-      require(broom)
-      require(broom.mixed)
-      require(tidyverse)
-      
-      results <- 
-        x %>%
-        tidy()
-      
-      table <- 
-        x %>%
-        tidy() %>%
-        mutate(result = NA) %>%
-        filter(effect=="fixed") %>%
-        dplyr::select(term, result)
-      
-      CIs <- x %>% confint.merMod(method = "Wald") %>% as.data.frame %>% mutate(term = rownames(.))
-      
-      for (i in table$term) {
-        estimate <- results %>% filter(term==i) %>% pull(estimate) %>% round (2) %>% formatC(digits=2, format='f')
-        se <- results %>% filter(term==i) %>% pull(std.error) %>% round (2) %>% formatC(digits=2, format='f')
-        CI_low <- CIs %>% filter(term==i) %>% pull(`2.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
-        CI_high <- CIs %>% filter(term==i) %>% pull(`97.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
-        if(results$p.value[results$term==i] > .001) {p_raw <- results$p.value[results$term==i]
-                                                     p_rounded <- round(p_raw, 3)
-                                                     p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
-                                                     p <- paste("p = ", p_no_leading_zero, sep = "")}
-        if(results$p.value[results$term==i] < .001) {p <- "p < .001"}
-        string <- paste("coef = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], ", p, sep = "")
-        table$result[table$term==i] <- string
+      lmer_summary <- summary(x)
+      results_table <- as.data.frame(lmer_summary$coefficients)
+      CIs_full <- as.data.frame(confint.merMod(x, method = "Wald"))
+      CIs <- CIs_full[!is.na(CIs_full$`2.5 %`), ]
+      results_table$CI_low <- CIs$`2.5 %`
+      results_table$CI_high <- CIs$`97.5 %`
+      lmer_apa_table <- data.frame(term = rownames(results_table),
+                                   lmer_apa_string = NA)
+      for (i in rownames(results_table)) {
+        estimate_raw <- results_table$Estimate[rownames(results_table)==i]
+        estimate <- sprintf("%.2f", round(estimate_raw, 2))
+        se_raw <- results_table$`Std. Error`[rownames(results_table)==i]
+        se <- sprintf("%.2f", round(se_raw, 2))
+        CI_low_raw <- results_table$CI_low[rownames(results_table)==i]
+        CI_low <- sprintf("%.2f", round(CI_low_raw, 2))
+        CI_high_raw <- results_table$CI_high[rownames(results_table)==i]
+        CI_high <- sprintf("%.2f", round(CI_high_raw, 2))
+        if(results_table$`Pr(>|t|)`[rownames(results_table)==i] > .001) {p_raw <- results_table$`Pr(>|t|)`[rownames(results_table)==i]
+                                                                         p_rounded <- round(p_raw, 3)
+                                                                         p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
+                                                                         p <- paste("p = ", p_no_leading_zero, sep = "")}
+        if(results_table$`Pr(>|t|)`[rownames(results_table)==i] < .001) {p <- "p < .001"}
+        lmer_apa_string <- paste("coef = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], ", p, sep = "")
+        lmer_apa_string_table$lmer_apa_string[lmer_apa_string_table$term==i] <- lmer_apa_string
       }
-      return(table)
+      return(lmer_apa_string_table)
     }
     if(grepl(class(x)[1], "metacor")) {
       require(meta)
