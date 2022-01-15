@@ -201,7 +201,7 @@ report_in_apa <-
       if(grepl(x$method, "Pearson's product-moment correlation"))              {report_cor_in_apa(x)}
       else if(grepl("Two Sample t-test", x$method) & 
               !grepl("Welch", x$method) &
-              class(x$data)=="list")) {                                        {report_t_in_apa(x)}}
+              class(x$data)=="list") {                                         {report_t_in_apa(x)}}
     else if(grepl(class(x)[1], "lm"))                                          {report_lm_in_apa(x)}
     else if(grepl(class(x)[1], "glm"))                                         {report_glm_in_apa(x)}
     else if(grepl(class(x)[1], "lmerModLmerTest"))                             {report_lmer_in_apa(x)}
