@@ -14,8 +14,8 @@ report_r_in_apa <-
 report_p_in_apa <- 
   function(x) {
     if(x > .001) {p_rounded <- sprintf("%.3f", round(x, 3))
-    p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
-    p_apa <- paste("p = ", p_no_leading_zero, sep = "")}
+                  p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
+                  p_apa <- paste("p = ", p_no_leading_zero, sep = "")}
     if(x < .001) {p_apa <- "p < .001"}
     p_apa
   }
