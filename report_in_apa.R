@@ -197,8 +197,11 @@ report_metamean_in_apa <-
 
 report_in_apa <- 
   function(x) {
-    if(grepl(class(x), "htest")) {if(grepl(x$method, "Pearson's product-moment correlation")) {report_cor_in_apa(x)}}
-    if(grepl(x$method, "Two Sample t-test") & !grepl(x$method, "Welch"))                      {report_t_in_apa(x)}
+    if(grepl(class(x), "htest")) {
+      if(grepl(x$method, "Pearson's product-moment correlation"))                             {report_cor_in_apa(x)}}
+    if(grepl(class(x), "htest")) {
+      if(grepl(x$method, " Two Sample t-test ") & !grepl(x$method, "Welch")) {
+        if(class(x$data)=="list")                                                             {report_t_in_apa(x)}}}
     if(grepl(class(x)[1], "lm"))                                                              {report_lm_in_apa(x)}
     if(grepl(class(x)[1], "glm"))                                                             {report_glm_in_apa(x)}
     if(grepl(class(x)[1], "lmerModLmerTest"))                                                 {report_lmer_in_apa(x)}
