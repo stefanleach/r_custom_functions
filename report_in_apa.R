@@ -197,16 +197,17 @@ report_metamean_in_apa <-
 
 report_in_apa <- 
   function(x) {
-    if(grepl(class(x), "htest")) {
-      if(grepl(x$method, "Pearson's product-moment correlation"))                             {report_cor_in_apa(x)}}
-    if(grepl(class(x), "htest")) {
-      if(grepl(x$method, " Two Sample t-test ") & !grepl(x$method, "Welch")) {
-        if(class(x$data)=="list")                                                             {report_t_in_apa(x)}}}
-    if(grepl(class(x)[1], "lm"))                                                              {report_lm_in_apa(x)}
-    if(grepl(class(x)[1], "glm"))                                                             {report_glm_in_apa(x)}
-    if(grepl(class(x)[1], "lmerModLmerTest"))                                                 {report_lmer_in_apa(x)}
-    if(grepl(class(x)[1], "afex_aov"))                                                        {report_anova_in_apa(x)}
-    if(grepl(class(x)[1], "metacor"))                                                         {report_metacor_in_apa(x)}
-    if(grepl(class(x)[1], "metacont") | grepl(class(x)[1], "metamean"))                       {report_metamean_in_apa(x)}
-    else {stop("I do not support this method :(")}
+    if(inherits(x, "htest")) {
+      if(grepl(x$method, "Pearson's product-moment correlation"))              {report_cor_in_apa(x)}
+      else if(grepl("Two Sample t-test", x$method) & 
+              !grepl("Welch", x$method) &
+              class(x$data)=="list")) {                                        {report_t_in_apa(x)}}
+    else if(grepl(class(x)[1], "lm"))                                          {report_lm_in_apa(x)}
+    else if(grepl(class(x)[1], "glm"))                                         {report_glm_in_apa(x)}
+    else if(grepl(class(x)[1], "lmerModLmerTest"))                             {report_lmer_in_apa(x)}
+    else if(grepl(class(x)[1], "afex_aov"))                                    {report_anova_in_apa(x)}
+    else if(grepl(class(x)[1], "metacor"))                                     {report_metacor_in_apa(x)}
+    else if(grepl(class(x)[1], "metacont") | grepl(class(x)[1], "metamean"))   {report_metamean_in_apa(x)}
+    else {stop("I do not support this method :(")
+          stop("I support: cor.test(), t_test(), lm(), glm(), lmer(), afex(), metacor(), metamean(), metacont()")}
   }
