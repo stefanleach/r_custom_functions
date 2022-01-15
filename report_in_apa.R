@@ -27,7 +27,7 @@ report_cor_in_apa <-
     r_uci <- report_r_in_apa(x$conf.int[2])
     t <- report_estimate_in_apa(x$statistic[[1]])
     df <- x$parameter[[1]]
-    p <- report_p_in_apa(p.value[[1]])
+    p <- report_p_in_apa(x$p.value[[1]])
     r_apa_string <- paste("r(", df, ") = ", r, ", 95% CI [", r_lci, ", ", r_uci, "], ", p, sep = "")
     r_apa_string
     }
@@ -37,7 +37,7 @@ report_t_in_apa <-
     require(MBESS)
     t <- report_estimate_in_apa(x$statistic[[1]])
     df <- x$parameter[[1]]
-    p <- report_p_in_apa(p.value[[1]])
+    p <- report_p_in_apa(x$p.value[[1]])
     d_and_cis <- ci.smd(ncp = x$statistic[[1]],
                         n.1 = length(x$data$x),
                         n.2 = length(x$data$y),
