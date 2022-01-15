@@ -2,23 +2,23 @@ report_estimate_in_apa <-
   function(x) {
     estimate_apa <- sprintf("%.2f", round(x, 2))
     estimate_apa
-    }
+  }
 
 report_r_in_apa <- 
   function(x) {
     r_apa <- sprintf("%.2f", round(x, 2))
     r_apa <- gsub("0\\.", ".", as.character(r_apa))
     r_apa
-    }
+  }
 
 report_p_in_apa <- 
   function(x) {
     if(x > .001) {p_rounded <- sprintf("%.3f", round(x, 3))
-                  p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
-                  p_apa <- paste("p = ", p_no_leading_zero, sep = "")}
+    p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
+    p_apa <- paste("p = ", p_no_leading_zero, sep = "")}
     if(x < .001) {p_apa <- "p < .001"}
     p_apa
-    }
+  }
 
 report_cor_in_apa <- 
   function(x) {
@@ -30,7 +30,7 @@ report_cor_in_apa <-
     p <- report_p_in_apa(x$p.value[[1]])
     r_apa_string <- paste("r(", df, ") = ", r, ", 95% CI [", r_lci, ", ", r_uci, "], ", p, sep = "")
     r_apa_string
-    }
+  }
 
 report_t_in_apa <- 
   function(x) {
@@ -47,7 +47,7 @@ report_t_in_apa <-
     d_uci <- report_estimate_in_apa(d_and_cis$Upper.Conf.Limit.smd)
     t_apa_string <- paste("t(", df, ") = ", t, ", ", p, ", d = ", d, " 95% CI [", d_lci, ", ", d_uci, "]", sep = "")
     t_apa_string
-    }
+  }
 
 report_lm_in_apa <- 
   function(x) {
@@ -145,9 +145,9 @@ report_lmer_in_apa <-
       p <- report_p_in_apa(results_table$`Pr(>|t|)`[rownames(results_table)==i])
       apa_string <- paste("coef = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], ", p, sep = "")
       lmer_apa_string_table$apa_string[lmer_apa_string_table$term==i] <- apa_string
-      }
-    lmer_apa_string_table
     }
+    lmer_apa_string_table
+  }
 
 z2cor <- 
   function(x) {
@@ -173,7 +173,7 @@ report_metacor_in_apa <-
     metacor_apa_string_table$apa_string[1] <- paste("r = ", fixed_r, ", 95% CI [", fixed_lower, ", ", fixed_upper, "], Z = ", fixed_z, ", ", fixed_p, sep = "")
     metacor_apa_string_table$apa_string[2] <- paste("r = ", random_r, ", 95% CI [", random_lower, ", ", random_upper, "], Z = ", random_z, ", ", random_p, sep = "")
     metacor_apa_string_table
-    }
+  }
 
 report_metamean_in_apa <- 
   function(x) {
@@ -201,13 +201,14 @@ report_in_apa <-
       if(grepl(x$method, "Pearson's product-moment correlation"))              {report_cor_in_apa(x)}
       else if(grepl("Two Sample t-test", x$method) & 
               !grepl("Welch", x$method) &
-              class(x$data)=="list") {                                         {report_t_in_apa(x)}}}
+              class(x$data)=="list")                                           {report_t_in_apa(x)}
+      else {stop("I do not support this method")}
+      }
     else if(grepl(class(x)[1], "lm"))                                          {report_lm_in_apa(x)}
     else if(grepl(class(x)[1], "glm"))                                         {report_glm_in_apa(x)}
     else if(grepl(class(x)[1], "lmerModLmerTest"))                             {report_lmer_in_apa(x)}
     else if(grepl(class(x)[1], "afex_aov"))                                    {report_anova_in_apa(x)}
     else if(grepl(class(x)[1], "metacor"))                                     {report_metacor_in_apa(x)}
     else if(grepl(class(x)[1], "metacont") | grepl(class(x)[1], "metamean"))   {report_metamean_in_apa(x)}
-    else {stop("I do not support this method :(")
-          stop("I support: cor.test(), t_test(), lm(), glm(), lmer(), afex(), metacor(), metamean(), metacont()")}
+    else {stop("I do not support this method")}
   }
