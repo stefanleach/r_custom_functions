@@ -71,7 +71,7 @@ report_t_inde_in_apa <-
     t_apa_string
   }
 
-report_lm_glm_in_apa <- 
+report_lm_in_apa <- 
   function(x) {
     require(stats)
     lm_summary <- summary(x)
@@ -189,7 +189,7 @@ report_in_apa <-
         }
       }
     else if(grepl(class(x)[1], "lm")) {
-      report_lm_glm_in_apa(x)
+      report_lm_in_apa(x)
       }
     else if(grepl(class(x)[1], "lmerModLmerTest")) {
       report_lmer_in_apa(x)
