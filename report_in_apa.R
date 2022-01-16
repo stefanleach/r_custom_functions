@@ -13,10 +13,14 @@ report_r_in_apa <-
 
 report_p_in_apa <- 
   function(x) {
-    if(x > .001) {p_rounded <- sprintf("%.3f", round(x, 3))
-                  p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
-                  p_apa <- paste("p = ", p_no_leading_zero, sep = "")}
-    if(x < .001) {p_apa <- "p < .001"}
+    if(x > .001) {
+      p_rounded <- sprintf("%.3f", round(x, 3))
+      p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
+      p_apa <- paste("p = ", p_no_leading_zero, sep = "")
+      }
+    if(x < .001) {
+      p_apa <- "p < .001"
+      }
     p_apa
   }
 
@@ -32,7 +36,25 @@ report_cor_in_apa <-
     r_apa_string
   }
 
-report_t_in_apa <- 
+report_t_one_paired_in_apa <- 
+  function(x) {
+    require(MBESS)
+    t <- report_estimate_in_apa(x$statistic[[1]])
+    df <- x$parameter[[1]]
+    p <- report_p_in_apa(x$p.value[[1]])
+    d <- report_estimate_in_apa(x$statistic[[1]]/sqrt(x$parameter[[1]]+1))
+    t_and_cis <- conf.limits.nct(ncp = x$statistic[[1]],
+                                 df = x$parameter[[1]],
+                                 conf.level = .95)
+    t_lci <- t_and_cis$Lower.Limit[1]
+    t_uci <- t_and_cis$Upper.Limit[1]
+    d_lci <- report_estimate_in_apa(t_lci/sqrt(x$parameter[[1]]+1))
+    d_uci <- report_estimate_in_apa(t_uci/sqrt(x$parameter[[1]]+1))
+    t_apa_string <- paste("t(", df, ") = ", t, ", ", p, ", dz = ", d, ", 95% CI [", d_lci, ", ", d_uci, "]", sep = "")
+    t_apa_string
+  }
+
+report_t_inde_in_apa <- 
   function(x) {
     require(MBESS)
     t <- report_estimate_in_apa(x$statistic[[1]])
@@ -45,78 +67,35 @@ report_t_in_apa <-
     d <- report_estimate_in_apa(d_and_cis$smd)
     d_lci <- report_estimate_in_apa(d_and_cis$Lower.Conf.Limit.smd)
     d_uci <- report_estimate_in_apa(d_and_cis$Upper.Conf.Limit.smd)
-    t_apa_string <- paste("t(", df, ") = ", t, ", ", p, ", d = ", d, " 95% CI [", d_lci, ", ", d_uci, "]", sep = "")
+    t_apa_string <- paste("t(", df, ") = ", t, ", ", p, ", ds = ", d, ", 95% CI [", d_lci, ", ", d_uci, "]", sep = "")
     t_apa_string
   }
 
-report_lm_in_apa <- 
+report_lm_glm_in_apa <- 
   function(x) {
-    results <- 
-      x %>%
-      tidy()
-    
-    table <- 
-      x %>%
-      tidy() %>%
-      mutate(result = NA) %>%
-      dplyr::select(term, result)
-    
-    CIs <- x %>% confint()%>% as.data.frame %>% mutate(term = rownames(.))
-    
-    for (i in table$term) {
-      estimate <- results %>% filter(term==i) %>% pull(estimate) %>% round (2) %>% formatC(digits=2, format='f')
-      se <- results %>% filter(term==i) %>% pull(std.error) %>% round (2) %>% formatC(digits=2, format='f')
-      CI_low <- CIs %>% filter(term==i) %>% pull(`2.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
-      CI_high <- CIs %>% filter(term==i) %>% pull(`97.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
-      statistic <- results %>% filter(term==i) %>% pull(statistic) %>% round (2) %>% formatC(digits=2, format='f')
-      df <- summary(x)$df[2] 
-      if(results$p.value[results$term==i] > .001)  {p_raw <- results$p.value[results$term==i]
-      p_rounded <- round(p_raw, 3)
-      p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
-      p <- paste("p = ", p_no_leading_zero, sep = "")}
-      if(results$p.value[results$term==i] < .001)  {p <- "p < .001"}
-      string <- paste("beta = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], t(", df, ") = ", statistic, ", ", p, sep = "")
-      table$result[table$term==i] <- string
+    require(stats)
+    lm_summary <- summary(x)
+    results_table <- as.data.frame(lm_summary$coefficients)
+    CIs_full <- as.data.frame(confint(x))
+    CIs <- CIs_full[!is.na(CIs_full$`2.5 %`), ]
+    results_table$CI_low <- CIs$`2.5 %`
+    results_table$CI_high <- CIs$`97.5 %`
+    lm_apa_string_table <- data.frame(term = rownames(results_table),
+                                      apa_string = NA)
+    for (i in rownames(results_table)) {
+      estimate <- report_estimate_in_apa(results_table$Estimate[rownames(results_table)==i])
+      se <- report_estimate_in_apa(results_table$`Std. Error`[rownames(results_table)==i])
+      CI_low <- report_estimate_in_apa(results_table$CI_low[rownames(results_table)==i])
+      CI_high <- report_estimate_in_apa(results_table$CI_high[rownames(results_table)==i])
+      p <- report_p_in_apa(results_table$`Pr(>|t|)`[rownames(results_table)==i])
+      apa_string <- paste("coef = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], ", p, sep = "")
+      lm_apa_string_table$apa_string[lm_apa_string_table$term==i] <- apa_string
     }
-    table
-  }
-
-report_glm_in_apa <- 
-  function(x) {
-    
-    results <- 
-      x %>%
-      tidy()
-    
-    table <- 
-      x %>%
-      tidy() %>%
-      mutate(result = NA) %>%
-      dplyr::select(term, result)
-    
-    CIs <- x %>% confint()%>% as.data.frame %>% mutate(term = rownames(.))
-    
-    for (i in table$term) {
-      estimate <- results %>% filter(term==i) %>% pull(estimate) %>% round (2) %>% formatC(digits=2, format='f')
-      se <- results %>% filter(term==i) %>% pull(std.error) %>% round (2) %>% formatC(digits=2, format='f')
-      CI_low <- CIs %>% filter(term==i) %>% pull(`2.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
-      CI_high <- CIs %>% filter(term==i) %>% pull(`97.5 %`) %>% round (2) %>% formatC(digits=2, format='f')
-      statistic <- results %>% filter(term==i) %>% pull(statistic) %>% round (2) %>% formatC(digits=2, format='f')
-      if(results$p.value[results$term==i] > .001)  {p_raw <- results$p.value[results$term==i]
-      p_rounded <- round(p_raw, 3)
-      p_no_leading_zero <- gsub("0\\.", ".", as.character(p_rounded))
-      p <- paste("p = ", p_no_leading_zero, sep = "")}
-      if(results$p.value[results$term==i] < .001)  {p <- "p < .001"}
-      string <- paste("b = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], Z = ", statistic, ", ", p, sep = "")
-      table$result[table$term==i] <- string
-    }
-    table
+    lm_apa_string_table
   }
 
 report_anova_in_apa <- 
   function(x) {
-    require(apa)
-    require(stringr)
     table <- apa(x)
     for (i in 1:nrow(table)) {
       table$text[i] <- str_replace_all(table$text[i], "\\*", "")
@@ -157,9 +136,8 @@ z2cor <-
 
 report_metacor_in_apa <- 
   function(x) {
-    metacor_apa_string_table <- 
-      data.frame(effect = c("fixed", "random"),
-                 apa_string = NA)
+    metacor_apa_string_table <- data.frame(effect = c("fixed", "random"),
+                                           apa_string = NA)
     fixed_r <- report_r_in_apa(z2cor(x$TE.fixed))
     fixed_lower <- report_r_in_apa(z2cor(x$lower.fixed))
     fixed_upper <- report_r_in_apa(z2cor(x$upper.fixed))
@@ -177,9 +155,8 @@ report_metacor_in_apa <-
 
 report_metamean_in_apa <- 
   function(x) {
-    metamean_apa_string_table <- 
-      data.frame(effect = c("fixed", "random"),
-                 apa_string = NA)
+    metamean_apa_string_table <- data.frame(effect = c("fixed", "random"),
+                                            apa_string = NA)
     fixed_d <- report_estimate_in_apa(x$TE.fixed)
     fixed_lower <- report_estimate_in_apa(x$lower.fixed)
     fixed_upper <- report_estimate_in_apa(x$upper.fixed)
@@ -198,17 +175,35 @@ report_metamean_in_apa <-
 report_in_apa <- 
   function(x) {
     if(inherits(x, "htest")) {
-      if(grepl(x$method, "Pearson's product-moment correlation"))              {report_cor_in_apa(x)}
-      else if(grepl("Two Sample t-test", x$method) & 
-              !grepl("Welch", x$method) &
-              class(x$data)=="list")                                           {report_t_in_apa(x)}
-      else {stop("I do not support this method")}
+      if(grepl(x$method, "Pearson's product-moment correlation")) {
+        report_cor_in_apa(x)
+        } 
+      else if(grepl("One Sample t-test", x$method) | grepl("Paired t-test", x$method)) {
+        report_t_one_paired_in_apa(x)
+        }
+      else if(grepl("Two Sample t-test", x$method) & !grepl("Welch", x$method) & class(x$data)=="list") {
+        report_t_inde_in_apa(x)
+        }
+      else {
+        stop("I do not support this method")
+        }
       }
-    else if(grepl(class(x)[1], "lm"))                                          {report_lm_in_apa(x)}
-    else if(grepl(class(x)[1], "glm"))                                         {report_glm_in_apa(x)}
-    else if(grepl(class(x)[1], "lmerModLmerTest"))                             {report_lmer_in_apa(x)}
-    else if(grepl(class(x)[1], "afex_aov"))                                    {report_anova_in_apa(x)}
-    else if(grepl(class(x)[1], "metacor"))                                     {report_metacor_in_apa(x)}
-    else if(grepl(class(x)[1], "metacont") | grepl(class(x)[1], "metamean"))   {report_metamean_in_apa(x)}
-    else {stop("I do not support this method")}
+    else if(grepl(class(x)[1], "lm")) {
+      report_lm_glm_in_apa(x)
+      }
+    else if(grepl(class(x)[1], "lmerModLmerTest")) {
+      report_lmer_in_apa(x)
+      }
+    else if(grepl(class(x)[1], "afex_aov")) {
+      report_anova_in_apa(x)
+      }
+    else if(grepl(class(x)[1], "metacor")) {
+      report_metacor_in_apa(x)
+      }
+    else if(grepl(class(x)[1], "metacont") | grepl(class(x)[1], "metamean")) {
+      report_metamean_in_apa(x)
+      }
+    else {
+      stop("I do not support this method")
+      }
   }
