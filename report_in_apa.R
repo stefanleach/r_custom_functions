@@ -206,4 +206,4 @@ report_in_apa <-
     else {
       stop("I do not support this method")
       }
-  }
+  } 
