@@ -128,6 +128,29 @@ report_lmer_in_apa <-
     lmer_apa_string_table
   }
 
+report_glmnb_in_apa <- 
+  function(x) {
+    require(stats)
+    glmnb_summary <- summary(x)
+    results_table <- as.data.frame(glmnb_summary$coefficients)
+    CIs_full <- as.data.frame(confint(x))
+    CIs <- CIs_full[!is.na(CIs_full$`2.5 %`), ]
+    results_table$CI_low <- CIs$`2.5 %`
+    results_table$CI_high <- CIs$`97.5 %`
+    glmnb_apa_string_table <- data.frame(term = rownames(results_table),
+                                         apa_string = NA)
+    for (i in rownames(results_table)) {
+      estimate <- report_estimate_in_apa(results_table$Estimate[rownames(results_table)==i])
+      se <- report_estimate_in_apa(results_table$`Std. Error`[rownames(results_table)==i])
+      CI_low <- report_estimate_in_apa(results_table$CI_low[rownames(results_table)==i])
+      CI_high <- report_estimate_in_apa(results_table$CI_high[rownames(results_table)==i])
+      p <- report_p_in_apa(results_table$`Pr(>|t|)`[rownames(results_table)==i])
+      apa_string <- paste("coef = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], ", p, sep = "")
+      glmnb_apa_string_table$apa_string[glmnb_apa_string_table$term==i] <- apa_string
+    }
+    glmnb_apa_string_table
+  }
+
 z2cor <- 
   function(x) {
     res <- (exp(2 * x) - 1) / (exp(2 * x) + 1)
@@ -190,6 +213,9 @@ report_in_apa <-
       }
     else if(grepl(class(x)[1], "lm")) {
       report_lm_in_apa(x)
+      }
+    else if(grepl(class(x)[1], "negbin")) {
+      report_glmnb_in_apa(x)
       }
     else if(grepl(class(x)[1], "lmerModLmerTest")) {
       report_lmer_in_apa(x)
