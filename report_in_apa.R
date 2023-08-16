@@ -110,7 +110,7 @@ report_glmnb_in_apa <-
       se <- report_estimate_in_apa(results_table$`Std. Error`[rownames(results_table)==i])
       CI_low <- report_estimate_in_apa(results_table$CI_low[rownames(results_table)==i])
       CI_high <- report_estimate_in_apa(results_table$CI_high[rownames(results_table)==i])
-      p <- report_p_in_apa(results_table$`Pr(>|t|)`[rownames(results_table)==i])
+      p <- report_p_in_apa(results_table$`Pr(>|z|)`[rownames(results_table)==i])
       apa_string <- paste("coef = ", estimate, ", SE = ", se, ", 95% CI [", CI_low, ", ", CI_high, "], ", p, sep = "")
       glmnb_apa_string_table$apa_string[glmnb_apa_string_table$term==i] <- apa_string
     }
